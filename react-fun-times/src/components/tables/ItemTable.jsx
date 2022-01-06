@@ -137,6 +137,12 @@ EnhancedTableHead.propTypes = {
 
 const EnhancedTableToolbar = (props) => {
   const { numSelected } = props;
+  function handleDelete() {
+    const rows1 = props.rows;
+    const selected1 = props.selected;
+    props.setRows(rows1.filter((row) => !selected1.includes(row.id)));
+    props.setSelected([]);
+  }
 
   return (
     <Toolbar
@@ -174,7 +180,7 @@ const EnhancedTableToolbar = (props) => {
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={handleDelete}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -211,7 +217,7 @@ export default function EnhancedTable(props) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.name);
+      const newSelecteds = rows.map((n) => n.id);
       setSelected(newSelecteds);
       return;
     }
@@ -260,7 +266,13 @@ export default function EnhancedTable(props) {
   return (
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          selected={selected}
+          setSelected={setSelected}
+          rows={rows}
+          setRows={props.setRows}
+        />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -303,7 +315,15 @@ export default function EnhancedTable(props) {
                           }}
                         />
                       </TableCell>
-                      <TableCell>{row.phoneNum}</TableCell>
+                      <TableCell>
+                        <a
+                          href={row.phoneLink}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {row.phoneNum}
+                        </a>
+                      </TableCell>
                       <TableCell>{row.itemName}</TableCell>
                       <TableCell>{row.expDate}</TableCell>
                     </TableRow>

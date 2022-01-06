@@ -1,0 +1,3 @@
+node_modules
+react-fun-times/src/firebase-config.js
+*.cache

@@ -57,7 +57,7 @@ function CirclekManager() {
   return (
     <div>
       <CreateNewItem phoneNums={phoneNums} handleAddItem={handleAddItem} />
-      <ItemTable rows={items} />
+      <ItemTable rows={items} setRows={setItems} />
     </div>
   );
 }

@@ -1,6 +1,14 @@
 import ItemTable from "./tables/ItemTable";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CreateNewItem from "./CreateNewItem";
+import {
+  onSnapshot,
+  collection,
+  addDoc,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "../firebase-config";
 
 function createData(id, phoneNum, phoneLink, itemName, expDate) {
   return {
@@ -12,52 +20,47 @@ function createData(id, phoneNum, phoneLink, itemName, expDate) {
   };
 }
 
-const rows = [
-  createData(
-    "1",
-    "(123) 456-7890",
-    "https://www.google.com",
-    "Item 1",
-    "2020-01-01"
-  ),
-  createData(
-    "2",
-    "(223) 456-7890",
-    "https://www.google.com",
-    "Item 2",
-    "2020-01-02"
-  ),
-  createData(
-    "3",
-    "(323) 456-7890",
-    "https://www.google.com",
-    "Item 3",
-    "2020-01-03"
-  ),
-];
-
-const nums = [
-  { num: "(123) 456-7890", link: "google" },
-  { num: "(153) 456-7890", link: "google" },
-  { num: "(923) 456-7890", link: "google" },
-];
-
 function CirclekManager() {
-  const [items, setItems] = useState(rows);
-  const [phoneNums, setPhoneNums] = useState(nums);
-  const [nextId, setNextId] = useState(4);
+  const [items, setItems] = useState([]);
+  const [phoneNums, setPhoneNums] = useState([]);
 
-  function handleAddItem(item) {
-    const newId = nextId;
-    const newItem = createData(newId, ...item);
-    setItems([...items, newItem]);
-    setNextId(nextId + 1);
-  }
+  const handleAddItem = async (item) => {
+    await insertNewItem(item);
+    await fetchItems();
+  };
+
+  const deleteItemById = async (id) => {
+    const docRef = doc(db, "items", id);
+    await deleteDoc(docRef);
+  };
+
+  const insertNewItem = async (props) => {
+    const collectionRef = collection(db, "items");
+    await addDoc(collectionRef, props);
+  };
+
+  const fetchItems = async () => {
+    onSnapshot(collection(db, "items"), (snapshot) =>
+      setItems(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+    );
+  };
+
+  useEffect(() => fetchItems(), []);
+
+  useEffect(
+    () =>
+      onSnapshot(collection(db, "phoneNums"), (snapshot) =>
+        setPhoneNums(
+          snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+        )
+      ),
+    []
+  );
 
   return (
     <div>
       <CreateNewItem phoneNums={phoneNums} handleAddItem={handleAddItem} />
-      <ItemTable rows={items} setRows={setItems} />
+      <ItemTable rows={items} setRows={setItems} deleteItem={deleteItemById} />
     </div>
   );
 }

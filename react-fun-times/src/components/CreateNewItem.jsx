@@ -11,7 +11,7 @@ import { zonedTimeToUtc } from "date-fns-tz";
 export default function CreateNewItem(props) {
   const phoneNums = props.phoneNums;
 
-  const [phoneNum, setPhoneNum] = useState(phoneNums[0].num);
+  const [phoneNum, setPhoneNum] = useState(0);
   const [itemName, setItemName] = useState("");
   const [expDate, setExpDate] = useState(
     format(add(new Date(), { days: 10 }), "yyyy-MM-dd")
@@ -19,11 +19,16 @@ export default function CreateNewItem(props) {
 
   function handleAddButton(e) {
     const phoneNum1 = phoneNum;
-    const index = phoneNums.map((e) => e.num).indexOf(phoneNum1);
-    const phoneLink = phoneNums[index].link;
+    const index = phoneNums.map((e) => e.phoneNum).indexOf(phoneNum1);
+    const phoneLink = phoneNums[index].phoneLink;
     const itemName1 = itemName;
     const expDate1 = expDate;
-    props.handleAddItem([phoneNum1, phoneLink, itemName1, expDate1]);
+    props.handleAddItem({
+      phoneNum: phoneNum1,
+      phoneLink: phoneLink,
+      itemName: itemName1,
+      expDate: expDate1,
+    });
     e.preventDefault();
   }
 
@@ -31,7 +36,7 @@ export default function CreateNewItem(props) {
     setPhoneNum(e.target.value);
   }
 
-  console.log(expDate);
+  // console.log(expDate);
 
   function handleItemNameChange(e) {
     setItemName(e.target.value);
@@ -52,8 +57,8 @@ export default function CreateNewItem(props) {
         onChange={handlePhoneNumChange}
       >
         {phoneNums.map((phoneNum, index) => (
-          <MenuItem key={index} value={phoneNum.num}>
-            {phoneNum.num}
+          <MenuItem key={index} value={phoneNum.phoneNum}>
+            {phoneNum.phoneNum}
           </MenuItem>
         ))}
       </TextField>

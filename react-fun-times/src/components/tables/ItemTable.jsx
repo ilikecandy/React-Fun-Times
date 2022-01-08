@@ -137,9 +137,13 @@ EnhancedTableHead.propTypes = {
 
 const EnhancedTableToolbar = (props) => {
   const { numSelected } = props;
+
   function handleDelete() {
     const rows1 = props.rows;
     const selected1 = props.selected;
+    selected1.forEach((item) => {
+      props.deleteItem(item);
+    });
     props.setRows(rows1.filter((row) => !selected1.includes(row.id)));
     props.setSelected([]);
   }
@@ -225,11 +229,12 @@ export default function EnhancedTable(props) {
   };
 
   const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+    const selectedIndex = selected.indexOf(name.id);
+
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, name.id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -272,6 +277,7 @@ export default function EnhancedTable(props) {
           setSelected={setSelected}
           rows={rows}
           setRows={props.setRows}
+          deleteItem={props.deleteItem}
         />
         <TableContainer>
           <Table
@@ -292,14 +298,14 @@ export default function EnhancedTable(props) {
                  rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
+                .map((row) => {
                   const isItemSelected = isSelected(row.id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                  const labelId = `enhanced-table-checkbox-${row.id}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id)}
+                      onClick={(event) => handleClick(event, row)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
